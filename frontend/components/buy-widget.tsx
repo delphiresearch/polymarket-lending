@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useWeb3 } from "./web3-provider"
+import { useBackend } from "@/hooks/useBackend"
 
 export function BuyWidget() {
   const [amount, setAmount] = useState("")
@@ -27,15 +28,41 @@ export function BuyWidget() {
     setAmount("1000")
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { executeOrder, loading, error } = useBackend()
+  const [txStatus, setTxStatus] = useState<string | null>(null)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!isWalletConnected) {
       connectWallet()
       return
     }
 
-    // 実際のトランザクション処理はここに実装
-    alert(`${activeTab === "supply" ? "Supply" : "Withdraw"} ${amount} submitted`)
+    try {
+      setTxStatus("Processing transaction...")
+      
+      const selectedMarketId = "your-selected-market-id"
+      
+      const orderParams = {
+        marketIdOrSlug: selectedMarketId,
+        positionIdOrName: "YES", // Assuming "YES" position for supply
+        buyOrSell: activeTab === "supply" ? "BUY" : "SELL",
+        usdcFlowAbs: parseFloat(amount),
+        provider: "polymarket"
+      }
+      
+      const result = await executeOrder(orderParams)
+      
+      setTxStatus("Transaction successful!")
+      console.log("Transaction result:", result)
+      
+      setTimeout(() => setTxStatus(null), 3000)
+    } catch (err: any) {
+      setTxStatus(`Transaction failed: ${err.message}`)
+      console.error("Transaction error:", err)
+      
+      setTimeout(() => setTxStatus(null), 5000)
+    }
   }
 
   return (
@@ -86,8 +113,21 @@ export function BuyWidget() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                {isWalletConnected ? "Supply" : "Connect Wallet"}
+              {txStatus && (
+                <div className={`text-sm mb-2 ${txStatus.includes("failed") ? "text-red-400" : "text-green-400"}`}>
+                  {txStatus}
+                </div>
+              )}
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                disabled={loading}
+              >
+                {!isWalletConnected 
+                  ? "Connect Wallet" 
+                  : loading 
+                    ? "Processing..." 
+                    : "Supply"}
               </Button>
             </form>
           </TabsContent>
@@ -128,8 +168,21 @@ export function BuyWidget() {
                 </div>
               </div>
 
-              <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-                {isWalletConnected ? "Withdraw" : "Connect Wallet"}
+              {txStatus && (
+                <div className={`text-sm mb-2 ${txStatus.includes("failed") ? "text-red-400" : "text-green-400"}`}>
+                  {txStatus}
+                </div>
+              )}
+              <Button 
+                type="submit" 
+                className="w-full bg-blue-600 hover:bg-blue-700"
+                disabled={loading}
+              >
+                {!isWalletConnected 
+                  ? "Connect Wallet" 
+                  : loading 
+                    ? "Processing..." 
+                    : "Withdraw"}
               </Button>
             </form>
           </TabsContent>
