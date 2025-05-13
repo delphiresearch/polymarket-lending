@@ -1,0 +1,38 @@
+name: Index Composer
+
+on:
+  schedule:
+    # Run every 72 hours (3 days)
+    - cron: '0 0 */3 * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  compose-index:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+      
+      - name: Install pnpm
+        run: npm install -g pnpm
+      
+      - name: Install dependencies
+        run: pnpm install
+      
+      - name: Run Index Composer
+        run: pnpm composer:run
+        env:
+          RPC_URL: ${{ secrets.RPC_URL }}
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          COMPOSER_MIN_TVL: 20000
+          COMPOSER_MAX_DAYS_TO_EXPIRY: 7
+          COMPOSER_MAX_COMPONENTS: 5
+          COMPOSER_INTERVAL_HRS: 72

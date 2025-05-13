@@ -5,6 +5,8 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { marketRoutes } from './routes/marketRoutes';
 import { orderRoutes } from './routes/orderRoutes';
+import { indicesRoutes } from './routes/indicesRoutes';
+import { adminRoutes } from './routes/adminRoutes';
 
 dotenv.config();
 
@@ -18,6 +20,8 @@ app.use(express.json());
 
 app.use('/api/markets', marketRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/indices', indicesRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ status: 'ok' });

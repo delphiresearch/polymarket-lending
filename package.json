@@ -1,0 +1,21 @@
+{
+  "name": "polymarket-index",
+  "version": "1.0.0",
+  "description": "Polymarket Index Product Platform",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "pnpm --filter frontend dev",
+    "build": "pnpm --filter frontend build",
+    "composer:run": "pnpm --filter index-composer start",
+    "composer:run:dry": "pnpm --filter index-composer start:dry",
+    "test": "pnpm --filter index-composer test",
+    "test:ui": "pnpm --filter frontend test:ui"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
